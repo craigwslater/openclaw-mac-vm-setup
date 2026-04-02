@@ -14,15 +14,15 @@ OpenClaw is an AI agent framework that can execute commands on your system. Inst
 The VM gets complete freedom. Your Mac stays pristine.
 
 ```
-┌─────────────────┐     ┌─────────────────┐
-│   YOUR MAC      │     │   UBUNTU VM     │
-│   (pristine)    │ ←→  │   (OpenClaw)    │
-│                 │ VM  │                 │
-│ • Documents     │wall │ • Full shell    │
-│ • SSH keys      │     │ • Network       │
-│ • Passwords     │     │ • File system   │
-│ • Browser       │     │ • Packages      │
-└─────────────────┘     └─────────────────┘
+┌─────────────────┐      ┌─────────────────┐
+│   YOUR MAC      │      │   UBUNTU VM     │
+│   (pristine)    │  ←→  │   (OpenClaw)    │
+│                 │  VM  │                 │
+│ • Documents     │ wall │ • Full shell    │
+│ • SSH keys      │      │ • Network       │
+│ • Passwords     │      │ • File system   │
+│ • Browser       │      │ • Packages      │
+└─────────────────┘      └─────────────────┘
 ```
 
 ## 🛡️ Why This Matters
