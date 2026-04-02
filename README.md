@@ -54,6 +54,26 @@ The VM gets complete freedom. Your Mac stays pristine.
 - You want screenshots and expected outputs
 - You want to understand *why* each step matters
 
+## 🎓 Workflow Options
+
+### Option 1: Self-Guided (Manual)
+Follow the guides step-by-step. Check Common Gotchas when stuck.
+
+### Option 2: AI-Assisted (Recommended)
+Copy the complete guide into ChatGPT/Claude and use this prompt:
+
+```
+I want to set up OpenClaw on an Ubuntu VM on my Mac using the attached guide.
+
+Walk me through this step-by-step. Before each step, tell me what we're doing and why.
+After I run each command, ask me to share the output so you can verify it matches the expected results.
+
+If something fails, reference the Edge Cases section and help me fix it before moving on.
+```
+
+### Option 3: Hybrid
+Start self-guided, switch to AI when you hit an error.
+
 ## 🏗️ The Stack
 
 | Component | Technology | Purpose |
@@ -157,26 +177,6 @@ openclaw exec -- ls -la ~/.openclaw/
 # 5. Telegram works
 openclaw message send --channel telegram --to YOUR_ID --message "Test"
 ```
-
-## 🎓 Workflow Options
-
-### Option 1: Self-Guided (Manual)
-Follow the guides step-by-step. Check Common Gotchas when stuck.
-
-### Option 2: AI-Assisted (Recommended)
-Copy the complete guide into ChatGPT/Claude and use this prompt:
-
-```
-I want to set up OpenClaw on an Ubuntu VM on my Mac using the attached guide.
-
-Walk me through this step-by-step. Before each step, tell me what we're doing and why.
-After I run each command, ask me to share the output so you can verify it matches the expected results.
-
-If something fails, reference the Edge Cases section and help me fix it before moving on.
-```
-
-### Option 3: Hybrid
-Start self-guided, switch to AI when you hit an error.
 
 ## 🔒 Security Deep Dive
 
