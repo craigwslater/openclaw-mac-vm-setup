@@ -112,6 +112,20 @@ openclaw exec -- ls -la ~/.openclaw/
 
 **See [QUICKSTART.md](QUICKSTART.md) for complete commands, configs, and troubleshooting.**
 
+## 🔧 Alternative Options (Mix & Match)
+
+This repo is flexible. While we provide tested configs for our stack, you can swap components:
+
+| Component | We Use ⭐ | Alternatives Supported |
+|-----------|----------|------------------------|
+| **Hypervisor** | VMware Fusion | UTM, Parallels, VirtualBox |
+| **Guest OS** | Ubuntu 22.04 LTS | Debian, Fedora, other Linux |
+| **Messaging** | Telegram | Discord, Signal, Slack, WhatsApp, Web UI |
+| **AI Models** | Cloud APIs / Ollama | Any OpenAI-compatible API |
+| **Network** | Bridged mode | NAT, host-only |
+
+The guides focus on our tested stack, but the patterns apply regardless of your choices. See the [Complete Guide](openclaw-mac-vm-complete-setup.md) for details on alternatives.
+
 ## 🔑 Key Configuration
 
 The magic happens in two files:
