@@ -1,5 +1,5 @@
 # 🔐 OpenClaw Mac VM Setup
-> Security-first OpenClaw deployment in an isolated Linux VM on macOS
+> Security-first OpenClaw deployment in an isolated Linux VM on macOS (All Chips: Intel + Silicon)
 
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-2026.4.1-blue)](https://docs.openclaw.ai)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-orange)](https://ubuntu.com)
