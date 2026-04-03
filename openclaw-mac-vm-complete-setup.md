@@ -16,11 +16,40 @@ Security and isolation. OpenClaw can execute commands on your system. Running it
 ## Pre-Flight Checklist
 
 Before starting, verify you have:
-- [ ] Ubuntu 22.04 LTS ISO downloaded
+- [ ] Ubuntu 22.04 LTS ISO downloaded (correct architecture for your Mac)
 - [ ] VMware Fusion, Parallels, UTM, or VirtualBox installed
-- [ ] At least 40GB free disk space
+- [ ] At least 40GB free disk space on Mac
+- [ ] 4GB+ RAM available for VM
 - [ ] Telegram account (for bot integration)
 - [ ] 30-60 minutes uninterrupted time
+
+**Download the Correct Ubuntu ISO:**
+
+| Your Mac | Download This ISO | File Name Pattern |
+|----------|-----------------|-------------------|
+| Intel Mac (2019 or older) | Ubuntu 22.04 LTS AMD64 | `ubuntu-22.04.x-desktop-amd64.iso` |
+| Apple Silicon (M1/M2/M3) | Ubuntu 22.04 LTS ARM64 | `ubuntu-22.04.x-desktop-arm64.iso` |
+
+⚠️ **Using the wrong ISO:** ARM64 on Intel = won't boot. AMD64 on Apple Silicon = extremely slow emulation.
+
+**Resource Requirements:**
+
+| Spec | Minimum | Recommended | Our Setup |
+|------|---------|-------------|-----------|
+| **VM RAM** | 2GB | 4GB | 4GB |
+| **VM Disk** | 20GB | 40GB | 40GB |
+| **Mac Free Space** | 60GB | 100GB | Varies |
+
+**At Minimum (2GB/20GB):**
+- ✅ OpenClaw works
+- ⚠️ Swap used (slower performance)
+- ❌ No Ollama local AI
+- ❌ Disk fills quickly (~6 months)
+
+**At Recommended (4GB/40GB):**
+- ✅ Smooth performance
+- ✅ Room for growth
+- ✅ Can add Ollama later
 
 ---
 
@@ -49,6 +78,19 @@ Before starting, verify you have:
    - Note your VM's IP address: `ip addr show`
 
 ✅ **Expected Result:** VM boots to Ubuntu login prompt; you can log in successfully
+
+### ⚠️ CRITICAL: Take a Snapshot NOW
+
+**Before installing ANYTHING else, snapshot your VM:**
+
+**VMware:** VM → Snapshot → Take Snapshot → Name: "Clean Ubuntu Install"
+
+**Why:** If OpenClaw setup goes wrong, you can revert to this clean state in 30 seconds instead of reinstalling Ubuntu.
+
+**When to snapshot:**
+- ✅ After Ubuntu install (NOW)
+- ✅ After OpenClaw working
+- ❌ Skip = hours of rework if something breaks
 
 ### UTM (Apple Silicon Macs)
 
@@ -89,6 +131,120 @@ v22.22.2
 ```
 
 ⚠️ **If you see v18.x.x:** You used the wrong install method. See Edge Case 1 below.
+
+---
+
+### Discover Your System (5 minutes)
+
+**Why:** Every VM is slightly different. These commands reveal your specific configuration.
+
+#### 1. What's Your VM's IP?
+```bash
+ip addr show | grep "inet " | grep -v "127.0.0.1" | head -1
+```
+
+✅ **Expected Output:**
+```
+inet 192.168.1.100/24 brd 192.168.1.255 scope global eth0
+```
+**Your IP is:** `192.168.1.100` (write this down)
+
+⚠️ **If you see nothing:** Your VM is not getting an IP. Solutions:
+- Bridged mode: Check your Mac's WiFi is connected
+- NAT mode: This is expected, use port forwarding instead
+
+#### 2. Check for Existing Node.js (Conflict Detection)
+```bash
+which node && node --version
+```
+
+**Three possibilities:**
+1. **Command not found** ✅ Good, proceed with Node.js 22 install
+2. **v22.x.x** ✅ Perfect, skip Node.js install
+3. **v18.x.x** ⚠️ **CONFLICT!** See Edge Case 1 (remove old version first)
+
+#### 3. Verify Your Hypervisor's Network
+```bash
+# Check default gateway
+ip route | grep default
+```
+
+**What this tells you:**
+- Gateway is your Mac's router IP (e.g., 192.168.1.1) → **Bridged mode** ✅
+- Gateway is 192.168.x.1 or 10.0.x.1 → **NAT mode** (may need port forwarding)
+- No gateway → **Host-only or disconnected** ❌
+
+#### 4. Check Disk Space (Critical!)
+```bash
+df -h / | awk 'NR==2 {print "Disk Usage: " $5 " full (" $3 " used of " $2 ")"}'
+```
+✅ **Safe:** Under 70% full  
+⚠️ **Warning:** 70-90% full (clean up soon)  
+❌ **Critical:** Over 90% full (STOP and free space now)
+
+**If over 90% full, clean up:**
+```bash
+# Remove package cache
+sudo apt clean
+
+# Remove unused packages
+sudo apt autoremove -y
+
+# Clear old logs (keep 7 days)
+sudo journalctl --vacuum-time=7d
+
+# Check what's using space
+du -sh /var/log ~/.openclaw /tmp 2>/dev/null | sort -h
+```
+
+#### 5. Check for Port Conflicts
+```bash
+sudo lsof -i :8080
+```
+
+**If you see output (process listed):**
+Something is using port 8080. Common culprits:
+- Docker: `docker ps` to check
+- Another OpenClaw instance: `openclaw gateway stop`
+- Other dev tools
+
+**Fix:** Either stop the conflicting service, or change OpenClaw port in `config.yaml`:
+```yaml
+gateway:
+  bind: "127.0.0.1:8081"  # Use different port
+```
+
+#### 6. Identify Yourself (Telegram User ID)
+**Before pairing**, you need your numeric Telegram ID:
+
+**Method A - Bot (Easiest):**
+1. Message @userinfobot on Telegram
+2. It replies: "Id: 8748931722"
+3. **Your ID:** `8748931722`
+
+**Method B - Logs (After pairing attempt):**
+```bash
+openclaw logs --follow
+# Send /start to your bot
+# Look for: "from.id": 8748931722
+```
+
+**📝 Record These Values:**
+```
+VM IP Address: ____________________
+Network Mode: _____________________ (Bridged/NAT/Host-only)
+Node.js Status: ___________________ (None/v18/v22/Other)
+Disk Usage: _______________________ (e.g., 45%)
+Port 8080: ________________________ (Free/In Use)
+Telegram User ID: _________________
+```
+
+**🔄 File Transfer Setup:**
+
+To copy files between Mac and VM during setup:
+- **VMware:** Enable Shared Folders: VM Settings → Options → Shared Folders → Always Enabled
+- **Purpose:** Transfer guide files, configs, scripts
+- **Security:** Disable after setup if you want maximum isolation
 
 ---
 
@@ -138,6 +294,15 @@ This creates:
 ✅ **Expected Result:** No errors; directories created successfully
 
 ### Edit Your Config File
+
+⚠️ **Before editing any config files, back them up:**
+
+```bash
+cp ~/.openclaw/config.yaml ~/.openclaw/config.yaml.bak
+cp ~/.openclaw/exec-approvals.json ~/.openclaw/exec-approvals.json.bak
+```
+
+If something breaks, restore with: `cp ~/.openclaw/config.yaml.bak ~/.openclaw/config.yaml`
 
 ```bash
 nano ~/.openclaw/config.yaml
@@ -679,6 +844,159 @@ sudo ufw allow 8080/tcp
 
 ---
 
+### Edge Case 10: VM IP Changes Every Reboot (Dynamic IP)
+
+**The Problem:**
+Bridged mode gives your VM an IP from your router's DHCP pool. This IP can change when:
+- VM reboots
+- Mac sleeps/wakes
+- Router restarts
+
+**Symptoms:**
+- OpenClaw worked yesterday, can't connect today
+- `ip addr show` shows different IP
+- Telegram bot seems offline
+
+**Solutions:**
+
+**Option A: Static IP (Recommended)**
+Configure your router to reserve an IP for your VM's MAC address:
+1. `ip link show` → Note MAC address (ether value)
+2. Router admin panel → DHCP Reservations
+3. Assign fixed IP to your VM's MAC
+
+**Option B: Use NAT + Port Forwarding (More stable)**
+1. Switch VM to NAT mode
+2. Set up port forwarding: Host 8080 → Guest 8080
+3. Always access via `http://localhost:8080` from Mac
+
+**Option C: mDNS/Avahi (Discovery-based)**
+Install mDNS on VM for hostname.local access:
+```bash
+sudo apt install avahi-daemon
+# Access via http://your-vm-name.local:8080
+```
+
+---
+
+### Edge Case 11: VPN Blocking VM Network
+
+**The Problem:**
+Your Mac VPN (especially corporate VPNs) can block VM bridged networking.
+
+**Symptoms:**
+- VM has no internet
+- `ip addr show` shows no IP
+- OpenClaw can't reach Telegram APIs
+
+**Solutions:**
+
+**Option A: Disconnect VPN (Simplest)**
+Pause VPN during setup, reconnect after.
+
+**Option B: Use NAT Mode Instead**
+1. Switch VM to NAT
+2. Port forward 8080
+3. VM uses Mac's VPN connection
+
+**Option C: Split Tunnel (Advanced)**
+Configure VPN to exclude VM network range.
+
+---
+
+### Edge Case 12: Mac Firewall Blocking VM
+
+**The Problem:**
+macOS firewall or third-party tools (Little Snitch, LuLu) block bridged networking.
+
+**Symptoms:**
+- VM gets IP but can't reach internet
+- Can't ping VM from Mac
+- OpenClaw partially works
+
+**Solutions:**
+
+**Check macOS Firewall:**
+System Settings → Network → Firewall → Disable temporarily
+
+**Check Third-Party Tools:**
+- Little Snitch: Allow VMware/Parallels network access
+- LuLu: Check for blocked connections
+- Other security software: Whitelist VM processes
+
+**Test:**
+```bash
+# From Mac terminal
+ping <VM_IP_ADDRESS>
+# Should get responses
+```
+
+---
+
+### Edge Case 13: Time Drift Causing Auth Failures
+
+**The Problem:**
+VM time different from real time causes authentication failures.
+
+**Symptoms:**
+- "Pairing expired" errors immediately
+- Telegram auth failures
+- SSL certificate errors
+
+**Fix:**
+```bash
+# Set timezone (replace with your timezone)
+sudo timedatectl set-timezone America/Los_Angeles
+
+# Install and enable NTP
+sudo apt install -y ntp
+sudo systemctl enable ntp
+sudo systemctl start ntp
+
+# Verify time sync
+timedatectl status
+# Should show: System clock synchronized: yes
+```
+
+---
+
+### Edge Case 14: Exposed Telegram Token (Security Breach)
+
+**The Problem:**
+You accidentally committed `config.yaml` to public GitHub with bot token visible.
+
+**Immediate Actions:**
+1. **Revoke the token NOW:**
+   - Message @BotFather
+   - Send: `/revoke`
+   - Select your bot
+   - Token is now dead
+
+2. **Generate new token:**
+   - @BotFather → `/newbot` or `/token`
+   - Update `config.yaml` with new token
+
+3. **If committed to GitHub:**
+   - Delete the repository or make it private
+   - Even after deleting, token may be in Git history
+   - Revoking is the only true fix
+
+**Prevention:**
+```bash
+# Add to .gitignore (before any git init)
+echo "config.yaml" >> .gitignore
+echo "exec-approvals.json" >> .gitignore
+echo "*.token" >> .gitignore
+```
+
+**Never commit:**
+- Bot tokens
+- API keys
+- Passwords
+- `exec-approvals.json` (contains sensitive paths)
+
+---
+
 ### Testing This Guide
 
 Want to verify this guide works? Here's a quick validation checklist:
@@ -807,6 +1125,35 @@ This guide uses **our tested stack**, but OpenClaw is flexible. Here's what you 
 | Host-only | Isolated network only | Not accessible |
 
 **Our recommendation:** Bridged (simplest for cross-device access)
+
+---
+
+### Device-Specific Considerations
+
+**Apple Silicon Macs (M1/M2/M3):**
+- Use UTM or Parallels (VMware Fusion works but is slower via Rosetta)
+- Choose ARM64 Ubuntu image (not AMD64)
+- Expect better battery life than Intel VMs
+
+**Intel Macs:**
+- All hypervisors work well
+- AMD64 Ubuntu image is fine
+- VMware Fusion performs best
+
+**8GB RAM Macs:**
+- Reduce VM RAM to 2-3GB (still works, slower)
+- Close other apps before starting VM
+- Consider swap space: `sudo fallocate -l 2G /swapfile`
+
+**Older macOS versions (pre-Ventura):**
+- VMware Fusion 12 works on Monterey
+- Some features may differ slightly
+- Tested primarily on Ventura/Sonoma
+
+**Corporate Macs (MDM managed):**
+- Check if virtualization is allowed by IT
+- Some MDM policies block VM creation
+- May need admin password for hypervisor install
 
 ---
 
