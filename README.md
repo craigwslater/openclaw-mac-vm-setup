@@ -254,7 +254,7 @@ If you've tried everything and it's not working:
 
 ## 🤝 Contributing
 
-Found an edge case we missed? The guides document 9 real issues we encountered.
+Found an edge case we missed? The guides document 14 real issues we encountered.
 
 **Ways to contribute:**
 - Open an issue with your error message
