@@ -53,8 +53,98 @@ If something fails, reference the Edge Cases section and help me fix it before m
 - Ubuntu 22.04 LTS ISO (or your preferred Linux distro)
 - Telegram account (or Discord, Signal, Slack, etc.)
 - 30-60 minutes
+- **Minimum 4GB RAM, 40GB disk for VM**
 
 **This guide uses our tested stack** (VMware Fusion + Ubuntu + Telegram), but OpenClaw works with other hypervisors, Linux distros, and messaging providers. See the [Complete Guide](openclaw-mac-vm-complete-setup.md) for alternative options.
+
+**Resource Requirements:**
+
+| Spec | Minimum | Recommended | Our Setup |
+|------|---------|-------------|-----------|
+| **VM RAM** | 2GB | 4GB | 4GB |
+| **VM Disk** | 20GB | 40GB | 40GB |
+| **Mac Free Space** | 60GB | 100GB | Varies |
+
+**At Minimum (2GB/20GB):**
+- ✅ OpenClaw works
+- ⚠️ Swap used (slower performance)
+- ❌ No Ollama local AI
+- ❌ Disk fills quickly (~6 months)
+
+**At Recommended (4GB/40GB):**
+- ✅ Smooth performance
+- ✅ Room for growth
+- ✅ Can add Ollama later
+
+## System Discovery (Do This First)
+
+Before running commands, verify your specific environment:
+
+### 1. Find Your VM's IP Address
+```bash
+ip addr show | grep "inet " | head -1 | awk '{print $2}'
+```
+✅ **Expected:** Something like `192.168.1.100/24`  
+⚠️ **If blank:** Your VM network isn't configured. Check VM settings → Network → Bridged mode
+
+### 2. Check for Existing Software
+```bash
+# Node.js (will conflict if wrong version)
+node --version  # Should error OR show v22.x.x
+
+# OpenClaw (should error if not installed)
+openclaw --version 2>/dev/null || echo "Not installed"
+
+# Check port 8080 (must be free)
+sudo lsof -i :8080 2>/dev/null || echo "Port 8080 is free"
+```
+
+### 3. Check Disk Space (Critical!)
+```bash
+df -h / | awk 'NR==2 {print "Disk Usage: " $5 " full (" $3 " used of " $2 ")"}'
+```
+✅ **Safe:** Under 70% full  
+⚠️ **Warning:** 70-90% full (clean up soon)  
+❌ **Critical:** Over 90% full (STOP and free space now)
+
+**If over 90% full, clean up:**
+```bash
+# Remove package cache
+sudo apt clean
+
+# Remove unused packages
+sudo apt autoremove -y
+
+# Clear old logs (keep 7 days)
+sudo journalctl --vacuum-time=7d
+
+# Check what's using space
+du -sh /var/log ~/.openclaw /tmp 2>/dev/null | sort -h
+```
+
+### 4. Verify VM Network Mode
+```bash
+ip route | grep default
+```
+✅ **Bridged mode:** Shows your router's IP  
+✅ **NAT mode:** Shows VMware/VirtualBox gateway (usually 192.168.x.x)  
+⚠️ **Host-only:** Limited to VM-to-Mac only
+
+**If you need to switch network modes:** Shut down VM → VM Settings → Network → Change from NAT to Bridged
+
+### 5. Identify Your Telegram User ID
+Before configuring, get your ID:
+```bash
+# Option A: Message @userinfobot, note the number
+# Option B: Check from OpenClaw logs (after first Telegram message):
+# openclaw logs --follow
+# Send /start to your bot, look for "from.id" in logs
+```
+
+**Record these values:**
+- VM IP: ________________
+- Network Mode: ________________
+- Telegram User ID: ________________
 
 ## TL;DR Commands
 
