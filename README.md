@@ -1,5 +1,6 @@
 # 🔐 OpenClaw Mac VM Setup
-> Security-first OpenClaw deployment in an isolated Linux VM on macOS (All Chips: Intel + Silicon)
+
+> Security-first OpenClaw deployment in an isolated Linux VM on macOS
 
 [![OpenClaw](https://img.shields.io/badge/OpenClaw-2026.4.1-blue)](https://docs.openclaw.ai)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-orange)](https://ubuntu.com)
@@ -54,26 +55,6 @@ The VM gets complete freedom. Your Mac stays pristine.
 - You want screenshots and expected outputs
 - You want to understand *why* each step matters
 
-## 🎓 Workflow Options
-
-### Option 1: Self-Guided (Manual)
-Follow the guides step-by-step. Check Common Gotchas when stuck.
-
-### Option 2: AI-Assisted (Recommended)
-Copy the complete guide into ChatGPT/Claude and use this prompt:
-
-```
-I want to set up OpenClaw on an Ubuntu VM on my Mac using the attached guide.
-
-Walk me through this step-by-step. Before each step, tell me what we're doing and why.
-After I run each command, ask me to share the output so you can verify it matches the expected results.
-
-If something fails, reference the Edge Cases section and help me fix it before moving on.
-```
-
-### Option 3: Hybrid
-Start self-guided, switch to AI when you hit an error.
-
 ## 🏗️ The Stack
 
 | Component | Technology | Purpose |
@@ -86,6 +67,8 @@ Start self-guided, switch to AI when you hit an error.
 | **Security** | `exec-approvals.json` | Auto-approve for zero friction |
 
 **Tested on:** VMware Fusion + Ubuntu 22.04 + OpenClaw 2026.4.1
+
+**Version Compatibility:** These guides were tested on OpenClaw 2026.4.1. Newer versions should work, but commands or configs may differ slightly. Check [OpenClaw docs](https://docs.openclaw.ai) for the latest changes.
 
 ## ⚡ TL;DR (The 30-Second Version)
 
@@ -192,6 +175,26 @@ openclaw exec -- ls -la ~/.openclaw/
 openclaw message send --channel telegram --to YOUR_ID --message "Test"
 ```
 
+## 🎓 Workflow Options
+
+### Option 1: Self-Guided (Manual)
+Follow the guides step-by-step. Check Common Gotchas when stuck.
+
+### Option 2: AI-Assisted (Recommended)
+Copy the complete guide into ChatGPT/Claude and use this prompt:
+
+```
+I want to set up OpenClaw on an Ubuntu VM on my Mac using the attached guide.
+
+Walk me through this step-by-step. Before each step, tell me what we're doing and why.
+After I run each command, ask me to share the output so you can verify it matches the expected results.
+
+If something fails, reference the Edge Cases section and help me fix it before moving on.
+```
+
+### Option 3: Hybrid
+Start self-guided, switch to AI when you hit an error.
+
 ## 🔒 Security Deep Dive
 
 ### What the VM protects:
@@ -234,6 +237,20 @@ ollama pull llama3.2
 curl -fsSL https://tailscale.com/install.sh | sh
 sudo tailscale up
 ```
+
+### Still Stuck?
+
+If you've tried everything and it's not working:
+
+1. **Open an issue** on this GitHub repo with:
+   - Your Mac model (Intel/Apple Silicon)
+   - Your hypervisor (VMware/UTM/Parallels/VirtualBox)
+   - Exact error message
+   - Output of `openclaw config validate`
+
+2. **Join OpenClaw Discord** — real-time help from the community: https://discord.com/invite/clawd
+
+3. **Nuclear option:** Delete VM, restore snapshot, try again with AI-assisted workflow
 
 ## 🤝 Contributing
 
