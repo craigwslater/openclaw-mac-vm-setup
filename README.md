@@ -6,6 +6,24 @@
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-22.04-orange)](https://ubuntu.com)
 [![VMware](https://img.shields.io/badge/VMware-Fusion-brightgreen)]()
 
+## ⚠️ Security Notice (Read First)
+
+This setup involves running an AI agent with full system access. We've designed it with **defense in depth**, but you must understand the trade-offs:
+
+| Setup Option | Security Level | Best For |
+|--------------|---------------|----------|
+| **NAT (Share with Mac)** ⭐ | ✅ **High** | Default, most users, good isolation |
+| **USB WiFi → Guest Network** | ✅ **Highest** | Maximum isolation, sensitive connected devices |
+
+**Quick Security Checklist:**
+- [ ] Choose network mode (NAT recommended for most users)
+- [ ] Secure Telegram token (use environment variables, not plain text)
+- [ ] Restrict config file permissions: `chmod 600 ~/.openclaw/config.yaml`
+- [ ] Never commit tokens to GitHub (add to .gitignore)
+- [ ] Set up monthly security audits
+
+**Full security guide:** [SECURITY_HARDENING.md](SECURITY_HARDENING.md)
+
 ## 🎯 The Goal
 
 **Give OpenClaw full permissions to be useful, while keeping it fully isolated from your sensitive data.**
@@ -15,16 +33,32 @@ OpenClaw is an AI agent framework that can execute commands on your system. Inst
 The VM gets complete freedom. Your Mac stays pristine.
 
 ```
-┌─────────────────┐      ┌─────────────────┐
-│   YOUR MAC      │      │   UBUNTU VM     │
-│   (pristine)    │  ←→  │   (OpenClaw)    │
-│                 │  VM  │                 │
-│ • Documents     │ wall │ • Full shell    │
-│ • SSH keys      │      │ • Network       │
-│ • Passwords     │      │ • File system   │
-│ • Browser       │      │ • Packages      │
-└─────────────────┘      └─────────────────┘
+┌─────────────────┐     ┌─────────────────┐
+│   YOUR MAC      │     │   UBUNTU VM     │
+│   (pristine)    │ ←→  │   (OpenClaw)    │
+│                 │ VM  │                 │
+│ • Documents     │wall │ • Full shell    │
+│ • SSH keys      │     │ • Network       │
+│ • Passwords     │     │ • File system   │
+│ • Browser       │     │ • Packages      │
+└─────────────────┘     └─────────────────┘
 ```
+
+**With NAT (default):** The VM is isolated on its own subnet and cannot directly access other devices on your home network. It can only reach the internet.
+
+**With USB WiFi → Guest Network:** Maximum isolation. The VM uses a separate physical network adapter and cannot even see your Mac's network.
+
+## 🎓 What You'll Learn
+
+By following these guides, you'll:
+
+1. **Create an isolated Linux VM** (your "blast containment chamber")
+2. **Install OpenClaw with full permissions** (no approval friction)
+3. **Secure your setup** (token protection, network isolation)
+4. **Control it from your phone** (via Telegram bot)
+5. **Have a recoverable system** (snapshot → 5 min restore if needed)
+
+**Result:** An AI assistant that can do anything... safely contained.
 
 ## 🛡️ Why This Matters
 
@@ -151,6 +185,9 @@ gateway:
 | **"Exec approval required"** | Set `"security": "full"` in **both** `defaults` AND `agents.main` in `exec-approvals.json` |
 | **Config changes not working** | Restart gateway: `openclaw gateway restart` |
 | **Telegram buttons not working** | Use auto-approve config above (we found buttons unreliable) |
+| **Token accidentally exposed** | Revoke immediately via @BotFather → `/revoke` → generate new token |
+
+**Security issues?** See [SECURITY_HARDENING.md](SECURITY_HARDENING.md) for network isolation and token protection.
 
 **Full troubleshooting:** See the Edge Cases section in [complete setup guide](openclaw-mac-vm-complete-setup.md).
 
@@ -254,7 +291,7 @@ If you've tried everything and it's not working:
 
 ## 🤝 Contributing
 
-Found an edge case we missed? The guides document 14 real issues we encountered.
+Found an edge case we missed? The guides document 9 real issues we encountered.
 
 **Ways to contribute:**
 - Open an issue with your error message
