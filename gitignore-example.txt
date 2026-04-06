@@ -1,0 +1,86 @@
+---
+
+## Git Configuration Security
+
+### The Risk
+
+Accidentally committing sensitive files to GitHub exposes:
+- Telegram bot tokens (public, anyone can use)
+- API keys (can be abused, cost you money)
+- Configuration paths (reveals system structure)
+
+### .gitignore Protection
+
+**Step 1: Create .gitignore**
+
+```bash
+# Create .gitignore in your repo root
+cat > .gitignore << 'EOF'
+# OpenClaw sensitive configs (contain tokens, API keys)
+config.yaml
+exec-approvals.json
+openclaw.json
+*.token
+*.key
+
+# Environment files (may contain secrets)
+.env
+.env.local
+.env.*.local
+
+# Secrets and credentials
+secrets/
+credentials/
+*.secret
+
+# Logs (can contain sensitive info)
+logs/
+*.log
+log/
+EOF
+```
+
+**Step 2: Verify it works**
+
+```bash
+# Check what Git would commit
+git status
+
+# config.yaml should NOT appear in "Changes to be committed"
+# Should appear as "untracked" or not at all
+```
+
+**Step 3: If you already committed sensitive files**
+
+```bash
+# 1. Stop! Don't just delete and commit again
+# 2. Use BFG Repo-Cleaner or git-filter-branch to remove from history
+# 3. Rotate all exposed tokens immediately
+# 4. Force push (if personal repo) or create new repo
+```
+
+**Why each pattern matters:**
+
+| Pattern | Why Protected |
+|---------|---------------|
+| `config.yaml` | Contains Telegram bot token in plain text |
+| `exec-approvals.json` | Reveals allowed commands, paths |
+| `*.token` | Any API tokens you save as files |
+| `.env*` | Environment files often have passwords |
+| `*.log` | May contain sensitive command output |
+
+**Test your .gitignore:**
+
+```bash
+# Create a test file
+echo "test-token" > config.yaml
+
+# Check Git status - should NOT show config.yaml as staged
+git status
+
+# If it DOES show config.yaml, your .gitignore isn't working
+# Fix: Make sure .gitignore is committed and in repo root
+
+# Clean up test file
+rm config.yaml
+```
