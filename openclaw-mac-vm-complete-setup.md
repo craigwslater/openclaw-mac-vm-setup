@@ -53,6 +53,79 @@ Before starting, verify you have:
 
 ---
 
+## 🔐 Network Security Decision (Choose Before Starting)
+
+**This is a CRITICAL decision that affects your security posture.**
+
+### Option A: NAT (Share with Mac) - RECOMMENDED ⭐
+
+**What it is:** VMware's NAT mode where the VM shares your Mac's network connection. The VM gets its own isolated subnet and cannot directly access other devices on your home network.
+
+**How to set up:**
+- VMware: VM Settings → Network Adapter → "Share with my Mac" (this is usually the DEFAULT)
+
+**Pros:**
+- ✅ Good isolation from connected devices (smart speakers, TVs, etc.)
+- ✅ Simple setup (default VMware option)
+- ✅ No additional hardware needed
+- ✅ File sharing via VMware drag-and-drop still works
+
+**Cons:**
+- ⚠️ File transfer requires VMware tools (not direct network access)
+
+**Best for:** Most users, recommended default. Good security without complexity.
+
+**Verify isolation:**
+```bash
+# In VM, test if you can reach your router (should FAIL)
+ping 192.168.86.1  # Replace with your router's IP
+
+# Test internet (should SUCCEED)
+ping 8.8.8.8
+```
+
+---
+
+### Option B: USB WiFi → Guest Network (Maximum Isolation)
+
+**What it is:** Use a USB WiFi adapter passed through to the VM, connecting directly to your router's Guest WiFi network while your Mac stays on the main network.
+
+**Pros:**
+- ✅ Maximum isolation - VM cannot see your Mac or any connected devices
+- ✅ True network separation (Mac and VM on different networks)
+- ✅ Can still access internet
+
+**Cons:**
+- ⚠️ Requires USB WiFi adapter purchase (~$15-25)
+- ⚠️ Complex setup (drivers, passthrough)
+- ⚠️ USB device must stay plugged in
+- ⚠️ File transfer requires cloud or network tools
+
+**Best for:** Users with sensitive connected devices who need maximum isolation
+
+**Requirements:**
+- USB WiFi adapter with Linux support (e.g., TP-Link Archer T3U, Netgear A6150)
+- Router with Guest WiFi network enabled
+
+**Setup:** See [SECURITY_HARDENING.md](SECURITY_HARDENING.md#option-b-usb-wifi--guest-network-maximum-isolation)
+
+---
+
+### Decision Matrix
+
+| Factor | NAT (Option A) | USB WiFi (Option B) |
+|--------|---------------|---------------------|
+| **Setup Complexity** | Low | High |
+| **Cost** | Free | $15-25 |
+| **Isolation Level** | Good | Maximum |
+| **Mac Network Impact** | Shares connection | Independent |
+| **Hardware Required** | None | USB WiFi adapter |
+
+**Choose NAT if:** You want good security without complexity (most users).
+**Choose USB WiFi if:** You need your Mac on main network AND maximum VM isolation.
+
+---
+
 ## Step 1: Create Your Linux VM
 
 **⏱️ Time Estimate: 15-20 minutes**
