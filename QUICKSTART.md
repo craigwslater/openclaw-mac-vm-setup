@@ -55,6 +55,20 @@ If something fails, reference the Edge Cases section and help me fix it before m
 - 30-60 minutes
 - **Minimum 4GB RAM, 40GB disk for VM**
 
+**⚠️ NETWORK SECURITY DECISION:**
+
+Choose **BEFORE** you start:
+
+**Option A: NAT (Share with Mac) - RECOMMENDED** ⭐
+- VM isolated on own subnet, cannot access connected devices
+- Best for: Most users, good security without complexity
+- Setup: Default VMware option (you probably already have this)
+
+**Option B: USB WiFi → Guest Network (Maximum)**
+- Uses separate USB WiFi adapter on Guest network
+- Best for: Maximum isolation, sensitive connected devices
+- Setup: [SECURITY_HARDENING.md](SECURITY_HARDENING.md#option-b-usb-wifi--guest-network-maximum-isolation)
+
 **This guide uses our tested stack** (VMware Fusion + Ubuntu + Telegram), but OpenClaw works with other hypervisors, Linux distros, and messaging providers. See the [Complete Guide](openclaw-mac-vm-complete-setup.md) for alternative options.
 
 **Resource Requirements:**
@@ -148,6 +162,18 @@ Before configuring, get your ID:
 
 ## TL;DR Commands
 
+### ⚡ Quick Prerequisites Check
+
+```bash
+# Run these first - if any fail, see troubleshooting below
+node --version  # Should be v22+ (if installed) or error
+ip addr show    # Should show an IP address
+```
+
+If these pass, proceed. If not, see [System Discovery](#system-discovery-do-this-first) below.
+
+---
+
 ```bash
 # 1. Update system
 sudo apt update && sudo apt upgrade -y
@@ -170,6 +196,8 @@ nano ~/.openclaw/config.yaml
 ```
 
 ## Minimal Working Config
+
+⚠️ **SECURITY WARNING:** See [SECURITY_HARDENING.md](SECURITY_HARDENING.md) for secure token storage options. Below uses plain text for simplicity, but environment variables are recommended for production.
 
 **`~/.openclaw/config.yaml:`**
 
